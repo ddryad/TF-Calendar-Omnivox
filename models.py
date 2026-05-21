@@ -7,8 +7,7 @@ class CredentialsRequest(BaseModel):
 
 
 class ClassItem(BaseModel):
-    titre: str
-    date: str
-    heure: str
-    local: str
-    categorie: str
+    nom: str
+    description: str
+    dateDepart: str 
+    dureeHeures: float

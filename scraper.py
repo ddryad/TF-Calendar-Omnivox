@@ -1,6 +1,49 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from datetime import datetime, timedelta
+ 
+MOIS = {
+    "janvier": 1, "février": 2, "mars": 3, "avril": 4,
+    "mai": 5, "juin": 6, "juillet": 7, "août": 8,
+    "septembre": 9, "octobre": 10, "novembre": 11, "décembre": 12,
+}
+ 
+def parse_classe(raw: dict) -> dict:
+    """ 
+    Input:
+        {
+            "titre": "Projet - Développement d'une application Web",
+            "date": "Jeudi 16 avril 2026",
+            "heure": "8:00 à 11:00",
+            "local": "S-013",
+            "categorie": "COURS THÉORIE 420-412-MV gr. 00002"
+        }
+ 
+    Output:
+        {
+            "nom": "Projet - Développement d'une application Web",
+            "description": "COURS THÉORIE 420-412-MV gr. 00002 — Local: S-013",
+            "dateDepart": "2026-04-16T08:00:00",
+            "dureeHeures": 3.0
+        }
+    """
+    _, jour, mois_str, annee = raw["date"].split()
+    mois = MOIS[mois_str.lower()]
+ 
+    debut_str, _, fin_str = raw["heure"].split()
+    h_debut, m_debut = map(int, debut_str.split(":"))
+    h_fin, m_fin = map(int, fin_str.split(":"))
+ 
+    date_depart = datetime(int(annee), mois, int(jour), h_debut, m_debut)
+    duree_minutes = (h_fin * 60 + m_fin) - (h_debut * 60 + m_debut)
+ 
+    return {
+        "nom": raw["titre"],
+        "description": f"{raw['categorie']} — Local: {raw['local']}",
+        "dateDepart": date_depart.isoformat(), 
+        "dureeHeures": duree_minutes / 60,     
+    }
 
 BASE_URL = "https://collegemv.omnivox.ca"
 LOGIN_PAGE = f"{BASE_URL}/Login/Account/Login?ReturnUrl=%2fintr%2f"

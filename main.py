@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from models import CredentialsRequest, ClassItem
-from scraper import login, get_classes
+from scraper import login, get_classes, parse_classe
 from typing import List
 
 app = FastAPI(
@@ -28,4 +28,4 @@ def fetch_classes(credentials: CredentialsRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Scraping failed: {str(e)}")
 
-    return classes
+    return [parse_classe(c) for c in classes] 
